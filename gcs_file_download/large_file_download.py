@@ -1,10 +1,19 @@
 from google.cloud import storage
+from google.oauth2 import service_account
 import os
 import io
+import json
 from concurrent.futures import ProcessPoolExecutor
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "google_app_cred.json"
 
+def initialize():
+    global project_id, storage_credentials
+    project_id = 'daring-chess-315909'
+
+    with open('./google_app_cred.json') as source:
+        cred_json = json.load(source)
+
+    storage_credentials = service_account.Credentials.from_service_account_info(cred_json)
 
 def scanComplete():
     # check if the scan is complete 
@@ -14,8 +23,7 @@ def scanComplete():
 # get the blob size
 def blob_size(bucket_name, source_blob_name):
 
-    storage_client = storage.Client()
- 
+    storage_client = storage.Client(project=project_id, credentials=storage_credentials)
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.get_blob(source_blob_name)
     blobSize = blob.size
@@ -37,7 +45,6 @@ def blob_size(bucket_name, source_blob_name):
 #     )
 
 
-
 # split the blob into chunks
 def split_byte_size(size: int, bucket: str, key: str) -> list:
     print(size)
@@ -52,14 +59,18 @@ def split_byte_size(size: int, bucket: str, key: str) -> list:
 
 # download the blob 
 def downloader(input: dict) -> object:
-    storage_client = storage.Client()
+
+    storage_client = storage.Client(project=project_id, credentials=storage_credentials)
     bucket_object = storage_client.get_bucket(input["bucket"])
     blob = bucket_object.blob(input["key"])
     in_memory_file = io.BytesIO()
     blob.download_to_file(in_memory_file, start=input["start"], end=input["end"])
     return in_memory_file
 
+initialize()
+
 if __name__ == '__main__':
+    
     bucket_object = 'dnstest_bucket_1'
     blob = 'blob_dns'
     dest_file = 'results/download_json.json'
@@ -68,12 +79,13 @@ if __name__ == '__main__':
 
     if status:
         Blob_size = blob_size(bucket_object,blob)
+        print("Blob size "+ str(Blob_size))
         split_bytes = split_byte_size(Blob_size, bucket_object, blob)
         with ProcessPoolExecutor(5) as ex:
             results = ex.map(downloader, split_bytes)
         in_memory_file = io.BytesIO()
         for result in results:
-            print(result)
+            print('IO objects: ' + str(result))
             result.seek(0)
             in_memory_file.write(result.getbuffer())
         in_memory_file.seek(0)
