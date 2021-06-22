@@ -47,7 +47,7 @@ def blob_size(bucket_name, source_blob_name):
 
 # split the blob into chunks
 def split_byte_size(size: int, bucket: str, key: str) -> list:
-    print(size)
+    # print(size)
     byte_list = []
     split = int(size/5)
     byte_list.append({"start": 0, "end": split, "bucket": bucket, "key": key})
@@ -79,13 +79,13 @@ if __name__ == '__main__':
 
     if status:
         Blob_size = blob_size(bucket_object,blob)
-        print("Blob size "+ str(Blob_size))
+        # print("Blob size "+ str(Blob_size))
         split_bytes = split_byte_size(Blob_size, bucket_object, blob)
         with ProcessPoolExecutor(5) as ex:
             results = ex.map(downloader, split_bytes)
         in_memory_file = io.BytesIO()
         for result in results:
-            print('IO objects: ' + str(result))
+            # print('IO objects: ' + str(result))
             result.seek(0)
             in_memory_file.write(result.getbuffer())
         in_memory_file.seek(0)
