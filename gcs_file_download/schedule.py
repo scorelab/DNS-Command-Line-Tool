@@ -1,20 +1,24 @@
+# from datetime import datetime, timedelta, time, date
 from datetime import datetime
 import time
 import os
-import subprocess
 from subprocess import Popen
 
 def background_schedule():
     from apscheduler.schedulers.background import BackgroundScheduler
 
-    def tick():
+    def update():
+        
         print('The time is: %s' %datetime.now())
         Popen('python3 large_file_download.py')
         print("The dataset is now upto date in your local machine \n")
 
     scheduler = BackgroundScheduler()
-    scheduler.add_job(tick, trigger='interval', days=1)
+
     scheduler.start()
+
+    scheduler.add_job(update, trigger='interval', days=1)
+    
     print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
 
     try:
