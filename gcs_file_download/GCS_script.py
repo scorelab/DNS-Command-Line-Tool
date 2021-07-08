@@ -13,6 +13,7 @@ def blob_size(bucket_name, source_blob_name):
     blobSize = blob.size
     print('Downloadable dataset size: '+ str(blobSize))
 
+
 def list_data(bucket_name):
     storage_client = storage.Client()
     blobs = storage_client.list_blobs(bucket_name)
@@ -65,8 +66,6 @@ def download_bucket(bucket_name,dest_folder):
         )
 
 
-    
-
 
 bucket_object = 'dnstest_bucket_1'
 blob = 'blob_dns'
@@ -92,6 +91,7 @@ args = vars(parser.parse_args())
 if args.get('size'):
     blob_size(bucket_object,blob)
 
+
 if args.get('list'):
     list_data(bucket_object)
 
@@ -106,4 +106,3 @@ if args.get('download'):
 if args.get('download_bucket'):
     dest_folder = args['download_bucket']
     download_bucket(bucket_object,dest_folder)
-
