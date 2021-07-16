@@ -4,5 +4,5 @@ DNSIP
 build
 script.spec
 pycache
-Executable2/__pycache__/
+Executable/
 Executable2/build/
