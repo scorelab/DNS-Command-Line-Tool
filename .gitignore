@@ -1,8 +1,4 @@
 google_app_cred.json
 dataset.json
 DNSIP
-build
-script.spec
-pycache
-Executable/
-Executable2/build/
+**/build/
