@@ -6,6 +6,7 @@ from google.oauth2 import service_account
 import logging
 from apscheduler.schedulers.background import BackgroundScheduler
 import json
+import pathlib
 
 
 
@@ -62,16 +63,28 @@ def main_scheduler():
                             create_folder=local_path + '/' +blob.name.replace(blob_path, '')[0:startloc]+ '/' +blob.name.replace(blob_path, '')[startloc:folder]
                             startloc = folder + 1
                             os.makedirs(create_folder)
-                        
+
                     downloadpath=local_path + '/' + blob.name.replace(blob_path, '')
 
                     blob.download_to_filename(downloadpath)
-                    
+
                     logging.info(blob.name.replace(blob_path, '')[0:blob.name.replace(blob_path, '').find("/")])
 
-        # logging.info('Blob {} downloaded to {}.'.format(blob_path, local_path))
+        logging.info('Blob {} downloaded to {}.'.format(blob_path, local_path))
 
+        for paths, subdirs, files in os.walk(os.path.normpath(local_path), topdown=True):
+            for file in files:
+                full_path = os.path.join(paths, file)
+                normalised = os.path.normpath(full_path)
+                file_path = normalised.replace('\\','/')
 
+                file_path = file_path.replace(local_path,blob_path.replace('/',''))
+
+                stats = storage.Blob(bucket=bucket, name=file_path).exists(storage_client)
+
+                if stats == False:
+                    os.remove(full_path)
+                    print('Deleted '+ file_path)
 
 
     scheduler = BackgroundScheduler()
