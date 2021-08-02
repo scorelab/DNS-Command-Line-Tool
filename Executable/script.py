@@ -88,7 +88,7 @@ def main_scheduler():
 
 
     scheduler = BackgroundScheduler()
-    scheduler.add_job(tick, trigger='interval', minutes=1)
+    scheduler.add_job(tick, trigger='interval', days=1)
     scheduler.start()
     print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
 
