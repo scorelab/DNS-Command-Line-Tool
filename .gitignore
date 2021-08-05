@@ -2,3 +2,6 @@ google_app_cred.json
 dataset.json
 DNSIP
 **/build/
+gcs_file_download/
+gcs_file_download/GCS_script.py
+.idea/
