@@ -22,14 +22,17 @@ app_cred_dict = {
 
 credentials = service_account.Credentials.from_service_account_info(app_cred_dict)
 
-def blob_size(bucket_name, source_blob_name):
+def blob_size(bucket_name, blob_path):
 
     storage_client = storage.Client(project=app_cred_dict['project_id'],credentials=credentials)
  
     bucket = storage_client.bucket(bucket_name)
-    blob = bucket.get_blob(source_blob_name)
-    blobSize = blob.size
-    print('Downloadable dataset size: '+ str(blobSize))
+    blobs = list(bucket.list_blobs(prefix=blob_path))
+    total_size = 0
+    for blob in blobs:
+        blobSize = blob.size
+        total_size = total_size + blobSize
+    print('Downloadable content size: '+ str(total_size))
 
 
 def list_data(bucket_name,blob_path):
@@ -48,19 +51,6 @@ def last_update(bucket_name,blob_path):
     blobs = list(bucket.list_blobs(prefix=blob_path))
     for blob in blobs:
         print("{} updated on: {}".format(blob.name,blob.updated))
-
-def download_blob(bucket_name, source_blob_name, dest_file):
-    storage_client = storage.Client(project=app_cred_dict['project_id'],credentials=credentials)
- 
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(source_blob_name)
-    blob.download_to_filename(dest_file)
- 
-    print(
-        "Blob {} downloaded to file path {} successfully ".format(
-            source_blob_name, dest_file
-        )
-    )
 
 
 def download_bucket(bucket_name,local_path):
@@ -147,7 +137,7 @@ def main_scheduler(bucket_name,local_path):
                     print('Deleted ' + file_path)
 
     scheduler = BackgroundScheduler()
-    scheduler.add_job(tick, trigger='interval', minutes=1)
+    scheduler.add_job(tick, trigger='interval', days=1)
     scheduler.start()
     print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
 
@@ -160,7 +150,6 @@ def main_scheduler(bucket_name,local_path):
         scheduler.shutdown()
 
 bucket_object = 'dnstest_bucket_1'
-blob = 'blob_dns'
 blob_path = 'sync/'
 
 
@@ -173,20 +162,19 @@ def main():
 
     parser.add_argument('--list' ,  action='store_const',const='True',help="List the available data for downloading")
 
-    parser.add_argument('--last_update' , action='store_const',const='True', help="See when the dataset was last updated")
+    parser.add_argument('--download', help="Download a single file", metavar='file_to_download')
 
-    parser.add_argument('--download' , help="Download a single file")
+    parser.add_argument('--download_bucket', help="One-time download of the complete DNSIP dataset",
+                        metavar='Local_location_of_files')
 
-    parser.add_argument('--download_bucket' , help="One-time download of the complete DNSIP dataset")
-
-    parser.add_argument('--schedule', help='Update the DNSIP dataset every 24 hours')
+    parser.add_argument('--schedule', help='Update the DNSIP dataset every 24 hours' , metavar='Local_location_of_files')
 
     # print(args)
 
     args = vars(parser.parse_args())
 
     if args.get('size'):
-        blob_size(bucket_object,blob)
+        blob_size(bucket_object,blob_path)
 
 
     if args.get('list'):
@@ -196,9 +184,6 @@ def main():
     if args.get('last_update'):
         last_update(bucket_object,blob_path)
 
-    if args.get('download'):
-        dest_file = args['download']
-        download_blob(bucket_object,blob,dest_file)
 
     if args.get('download_bucket'):
         dest_folder = args['download_bucket']

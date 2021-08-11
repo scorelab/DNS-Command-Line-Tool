@@ -6,14 +6,10 @@ with open('requirements.txt') as f:
 long_description = 'Python package for DNSIP dataset downloads and updates'
 
 setup(
-		name ='DNSIP_commandLine_tool',
-        version ='1.0.0',
+		name ='DNS-Command-Line-Tool',
+		version ='1.0.0',
 		author ='Vinuri Bandara',
-		# author_email ='vibhu4agarwal@gmail.com',
-		# url ='https://github.com/Vibhu-Agarwal/vibhu4gfg',
-		# description ='Demo Package for GfG Article.',
-		# long_description = long_description,
-		# long_description_content_type ="text/markdown",
+		author_email ='vinurib@scorelab.org',
 		license ='MIT',
 		packages = find_packages(),
 		entry_points ={
