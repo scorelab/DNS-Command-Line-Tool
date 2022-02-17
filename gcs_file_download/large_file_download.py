@@ -4,11 +4,13 @@ import os
 import io
 import json
 from concurrent.futures import ProcessPoolExecutor
+from dotenv import load_dotenv
 
+load_dotenv()
 
 def initialize():
     global project_id, storage_credentials
-    project_id = 'daring-chess-315909'
+    project_id = os.getenv('PROJECT_ID')
 
     with open('./google_app_cred.json') as source:
         cred_json = json.load(source)
